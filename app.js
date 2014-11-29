@@ -13,7 +13,7 @@ var express = require('express')
 var app = express();
 
 // all environments
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.OPENSHIFT_NODEJS_PORT || 3000);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.favicon());
@@ -38,6 +38,6 @@ app.post('/gumball', gumball.addgumball);
 app.put('/gumball/:id', gumball.updategumball);
 app.del('/gumball/:id', gumball.deletegumball);
 
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
-});
+var port = process.env.OPENSHIFT_NODEJS_PORT || 3000;
+var address =  process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1";
+app.listen(port, address);
