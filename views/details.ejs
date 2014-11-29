@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Gumball Machine</title>
+      <link href="/stylesheets/signup.css" media="all" rel="stylesheet" type=
+         "text/css">
+      <link href="/stylesheets/style.css" media="all" rel="stylesheet" type=
+         "text/css">
+      <style>
+         h2   {background-color:white;red}
+      </style>
+   </head>
+   <body>
+      <div id="super-container" style = "background: url(/images/giant-gumball-machine.jpg) center; background-repeat:	no-repeat; background-size: 600px 380px;">
+      <div id="alert-container">
+         <div class="clearfix">
+            <div class="signup-wrapper">
+               <div class="signup-flow on-flow-start" data-component-bound=
+                  "true">
+                  <div class="flow-start signup-visible"
+                     data-component-bound="true" >
+                     <div class="embossed-box">
+                        <div class="signup-form-container">
+                           <div class="header">
+                              <h2>Welcome to the Gumball Machine</h2>
+                              <fieldset class="hr-line"></fieldset>
+                              <form action=
+                                 "/getDetails/<%=_id%>" class=
+                                 "" id=
+                                 "signup-form" method="post" name=
+                                 "signup-form">
+                                 <input type="hidden" value="<%=state%>" name="state">
+                                 <label class=
+                                    "placeholder-sub">Serial No &nbsp;</label>
+                                 <input id="email" name="serialNumber"
+                                    placeholder="Serial #" required="required"
+                                    type="text" readOnly value="<%=result.serialNumber%>" size="23"><br> 
+                                 <label class=
+                                    "placeholder-sub">Model No.</label>   
+                                 <input id="modelNumber" name="modelNumber"
+                                    placeholder="Model #" readOnly required="required"
+                                    type="text" value="<%=result.modelNumber%>" size="23"> 
+                                    <br>
+                                    <label class=
+                                    "placeholder-sub">Count</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                 <input id="countOfGumballs" name="count"
+                                    placeholder="Count" required=
+                                    "required" readOnly type="number" value="<%=result.count%>">
+                                 <hr>
+                                 <h2><%=Msg%></h2>
+                                 <hr>
+                                 <input id="insert" type="submit" value=
+                                    "Insert Quarter" name="event"> 
+                                  <input id="crank" type="submit" value=
+                                    "Turn Crank" name="event"> 
+                              </form>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>
