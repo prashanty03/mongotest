@@ -1,5 +1,16 @@
 var mongo = require('mongodb');
-
+var crypto = require('crypto');
+var secretkey = 'XLK5NFogsyjXTq9h02qYeh3B93qqJhoX';
+var get_hash = function(state, ts){
+	var text = state + ts + secretkey;
+	hmac = 	crypto.createHmac("sha256", secretkey);
+	hmac.setEncoding('base64');
+	hmac.write(text);
+	hmac.end();
+	hash = hmac.read();
+	return hash;
+	
+}
 var Server = mongo.Server,
     Db = mongo.Db,
     BSON = mongo.BSONPure;
@@ -28,7 +39,10 @@ exports.findById = function(req, res) {
     console.log('Retrieving gumball: ' + id);
     db.collection('gumballs', function(err, collection) {
         collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
-        	res.render('details', {result:item, _id: id, state:'No Coin', Msg:'Please Insert Coin'});//res.send(item);
+        	var state = 'No Coin';
+        	var ts = new Date().getTime();
+        	var hash = get_hash(state, ts)
+        	res.render('details', {result:item, _id: id, state:state, hash : hash, ts : ts, Msg:'Please Insert Coin'});//res.send(item);
         });
     });
 };
@@ -61,7 +75,20 @@ exports.updategumball = function(req, res) {
 	var input = JSON.parse(JSON.stringify(req.body));
 	var state = input.state;
 	var event = input.event;
+	var hash1 = input.hash;
+	var ts = parseInt(input.ts);
+	console.log(hash +" ***" +state +"***"+ts);
+	var now = new Date().getTime();
+	var diff = ((now-ts)/1000);
+	var hash2 = get_hash(state, ts);
+	console.log(hash2 +" &&&" +state +"&&&"+ts);
+	console.log("Diff" + diff);
+	console.log("Hash1" + hash1);
+	console.log("Hash2" + hash2);
 	
+	if(diff > 120){
+		error(req, res, '******Session Invalid*******');
+	}
 	var data = {
 			id : id,
 			serialNumber : input.serialNumber,
@@ -71,15 +98,19 @@ exports.updategumball = function(req, res) {
 	console.log(data);
 	if(event=="Insert Quarter"){
 		if(state=="No Coin"){
-			//state = "Has Coin";
-			res.render('details', {result:data, _id:id, state:'Has Coin', Msg:'Coin Inserted'});
+			var nstate = "Has Coin";
+			var nhash = get_hash(state, now);
+			console.log(nhash +" ###" +nstate +"###"+now);
+			res.render('details', {result:data, _id:id, state:nstate, ts : now, hash : nhash, Msg:'Coin Inserted'});
 		}
-		else
-			res.render('details', {result:data, _id:id, state:state, Msg:'Coin already Inserted'});
+		else{
+			res.render('details', {result:data, _id:id, state:state, ts : now, hash : get_hash(state, now), Msg:'Coin already Inserted'});
+		}
+			
 	}
 	else{
 		if(state=="No Coin"){
-			res.render('details', {result:data, _id:id, state:state, Msg:'Please Insert Coin'})
+			res.render('details', {result:data, _id:id, ts : now, state:state, hash : get_hash(state, now),  Msg:'Please Insert Coin'})
 		}
 		else if(state=="Has Coin"){
 			if(input.count > 0){
@@ -96,13 +127,14 @@ exports.updategumball = function(req, res) {
 			                res.send({'error':'An error has occurred'});
 			            } else {
 			                console.log('' + result + ' document(s) updated');
-			                res.render('details', {result:dataNew, _id:id, state:'No Coin', Msg:'Please Collect gumball'});
+			                
+			                res.render('details', {result:dataNew, _id:id, ts : now, state:'No Coin', hash : get_hash('No Coin', now), Msg:'Please Collect gumball'});
 			            }
 			        });
 			    });
 			}
 			else {
-				res.render('details', {result:data, _id : id, state:state, Msg:'Inventory Zero'});
+				res.render('details', {result:data, _id : id, ts : now, hash : get_hash(state, now), state:state, Msg:'Inventory Zero'});
 			}
 			
 		}
@@ -147,7 +179,7 @@ var populateDB = function() {
     {
         serialNumber : "123456789999",
         modelNumber : "123123123",
-        count : 5
+        count : 10
     },
     {
         serialNumber : "12345678999999",
@@ -159,5 +191,5 @@ var populateDB = function() {
     db.collection('gumballs', function(err, collection) {
         collection.insert(gumballs, {safe:true}, function(err, result) {});
     });
-
 };
+
