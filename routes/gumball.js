@@ -85,16 +85,17 @@ exports.updategumball = function(req, res) {
 	console.log("Diff" + diff);
 	console.log("Hash1" + hash1);
 	console.log("Hash2" + hash2);
-	
-	if(diff > 120){
-		error(req, res, '******Session Invalid*******');
-	}
 	var data = {
 			id : id,
 			serialNumber : input.serialNumber,
 			modelNumber : input.modelNumber,
 			count : input.count
 	}
+	
+	if(diff > 120){
+		res.render('details', {result:data, _id:id, state:state, ts : now, hash : hash, Msg:'******Session Invalid*******'} );
+	}
+	
 	console.log(data);
 	if(event=="Insert Quarter"){
 		if(state=="No Coin"){
